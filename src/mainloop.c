@@ -1,7 +1,9 @@
 #include <arpa/inet.h>
 #include <assert.h>
 #include <ctype.h>
+#include <errno.h>
 #include <fcntl.h>
+#include <limits.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -74,11 +76,26 @@ static int sock_set_non_blocking(int fd)
 
 static int get_port_number(char *arg_port)
 {
-    int port_number = strtol(arg_port, &arg_port, 10);
-    if (port_number <= 0 || port_number > 65535) {
-        port_number = DEFAULT_PORT_NUMBER;
+    long ret;
+    char *endptr;
+
+    ret = strtol(arg_port, &endptr, 10);
+    if ((errno == ERANGE && (ret == LONG_MAX || ret == LONG_MIN)) ||
+        (errno != 0 && ret == 0)) {
+        perror("strtol");
+        exit(EXIT_FAILURE);
     }
-    return port_number;
+
+    if (endptr == arg_port) {
+        fprintf(stderr, "No digits were found\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // strtol successfully parse arg_port, and check boundary condition
+    if (ret <= 0 || ret > 65535) {
+        ret = DEFAULT_PORT_NUMBER;
+    }
+    return ret;
 }
 
 struct cmd_config {
@@ -201,5 +218,8 @@ int main(int argc, char **argv)
         }
     }
 
+    free(cfg);
+    free(events);
+    free(request);
     return 0;
 }

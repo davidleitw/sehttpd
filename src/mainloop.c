@@ -9,13 +9,13 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include "flag.h"
 #include "http.h"
 #include "logger.h"
 #include "timer.h"
 
 /* the length of the struct epoll_events array pointed to by *events */
 #define MAXEVENTS 1024
-
 #define LISTENQ 1024
 
 static int open_listenfd(int port)
@@ -73,8 +73,9 @@ static int sock_set_non_blocking(int fd)
 #define PORT 8081
 #define WEBROOT "./www"
 
-int main()
+int main(int argc, char **argv)
 {
+    struct cmd_config *cfg = get_config_by_cmd(argc, argv);
     /* when a fd is closed by remote, writing to this fd will cause system
      * send SIGPIPE to this process, which exit the program
      */
@@ -85,7 +86,7 @@ int main()
         return 0;
     }
 
-    int listenfd = open_listenfd(PORT);
+    int listenfd = open_listenfd(cfg->port);
     int rc UNUSED = sock_set_non_blocking(listenfd);
     assert(rc == 0 && "sock_set_non_blocking");
 

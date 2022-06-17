@@ -69,8 +69,6 @@ static int sock_set_non_blocking(int fd)
     return 0;
 }
 
-/* TODO: use command line options to specify */
-#define PORT 8081
 #define WEBROOT "./www"
 
 int main(int argc, char **argv)

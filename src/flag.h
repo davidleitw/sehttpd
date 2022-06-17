@@ -7,7 +7,6 @@
 #include <unistd.h>
 
 #define DEFAULT_PORT_NUMBER 8081
-#define DEFAULT_WEBROOT "./www"
 
 static int get_port_number(char *arg_port)
 {
@@ -25,8 +24,7 @@ struct cmd_config {
 static struct cmd_config *get_config_by_cmd(int argc, char **argv)
 {
     int cmdopt = 0;
-    struct cmd_config *cfg =
-        (struct cmd_config *) malloc(sizeof(struct cmd_config));
+    struct cmd_config *cfg = malloc(sizeof(struct cmd_config));
 
     while ((cmdopt = getopt(argc, argv, "p:r:")) != -1) {
         switch (cmdopt) {
